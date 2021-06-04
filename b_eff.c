@@ -124,7 +124,7 @@
 /* --- for fast malloc(), time(): */
 #include <sys/types.h>
 /* --- for fast malloc(): */
-#include <malloc.h>
+//#include <malloc.h>
 /* --- for time(), ctime(): */
 #include <time.h>
 /* --- for drand48(), srand48(): */
@@ -141,7 +141,7 @@
 # define MEMORY_PER_PROCESSOR 128 /*MBytes*/
 #endif 
 
-#define REPETITIONS 3
+#define REPETITIONS 2
 #define MIN_REPETITIONS 2   /* to reduce total execution time if necess.*/
 #define MSGLENGTHS 21
 #define MAX_FACT_2 12       /* message lengths by step with factor 2
@@ -729,14 +729,24 @@ main(int argc, char **argv)
       MPI_Group_incl(world_group, size, ranks, &random_group);
       MPI_Comm_create(MPI_COMM_WORLD, random_group, &random_comm);
       MPI_Group_free(&random_group); 
-      MPI_Comm_rank(random_comm, &comm_myrank);
+      //MPI_Comm_rank(random_comm, &comm_myrank);
+	  for (i=0; i<size; i++)
+		if (ranks[i]==myrank) {
+			comm_myrank = i;
+			break;
+		}
       i_pat++;
-      comm[i_pat]           = random_comm;
+      //comm[i_pat]           = random_comm;
+      comm[i_pat]           = MPI_COMM_WORLD;
       sr_count[i_pat]       = 2; /*Ping-Pong*/
-      sr_sranks[i_pat][0]   = (comm_myrank +1) % size;       /*Ping*/
-      sr_rranks[i_pat][0]   = (comm_myrank -1 +size) % size;
-      sr_sranks[i_pat][1]   = (comm_myrank -1 +size) % size; /*Pong*/
-      sr_rranks[i_pat][1]   = (comm_myrank +1) % size;
+      //sr_sranks[i_pat][0]   = (comm_myrank +1) % size;       /*Ping*/
+      //sr_rranks[i_pat][0]   = (comm_myrank -1 +size) % size;
+      //sr_sranks[i_pat][1]   = (comm_myrank -1 +size) % size; /*Pong*/
+      //sr_rranks[i_pat][1]   = (comm_myrank +1) % size;
+      sr_sranks[i_pat][0]   = ranks[(comm_myrank +1) % size];       /*Ping*/
+      sr_rranks[i_pat][0]   = ranks[(comm_myrank -1 +size) % size];
+      sr_sranks[i_pat][1]   = ranks[(comm_myrank -1 +size) % size]; /*Pong*/
+      sr_rranks[i_pat][1]   = ranks[(comm_myrank +1) % size];
       msg_count[i_pat][0]   = size;
       msg_count[i_pat][1]   = size;
       do_participate[i_pat] = 1;
@@ -1273,6 +1283,7 @@ main(int argc, char **argv)
                       "loop=%3d sr=%1d after  SendRecv\n", myrank, MPI_Wtime()-all_beg,i_rep,
                       i_msg, i_pat, i_loop, i_sr); fflush(stdout);
 #            endif 
+			 /*
              if ((sr_rranks[i_pat][i_sr] != MPI_PROC_NULL) &&
                  ( (recvbuf[base] != v1) ||
                    (recvbuf[base+Msglng-1] != v2) ) )
@@ -1285,6 +1296,7 @@ main(int argc, char **argv)
                          (int)v1, (int)v2);
                   MPI_Abort(MPI_COMM_WORLD,1);
                 }
+			 //*/
              base = base + Msglng8;
            } /* endfor i_sr */
           } /* endfor i_loop */
@@ -1337,6 +1349,7 @@ main(int argc, char **argv)
                     "loop=%3d      after  Alltoallv\n", myrank, MPI_Wtime()-all_beg,i_rep, 
                     i_msg, i_pat, i_loop); fflush(stdout);
 #          endif 
+		   /*
            for (i_sr=0; i_sr<sr_count[i_pat]; i_sr++)
            { if ((sr_rranks[i_pat][i_sr] != MPI_PROC_NULL) &&
                  ( (recvbuf[base_vals[i_sr]]
@@ -1355,6 +1368,7 @@ main(int argc, char **argv)
                   MPI_Abort(MPI_COMM_WORLD,1);
                 }
            } /* endfor i_sr */
+		   //*/
           } /* endfor i_loop */
           time_end = MPI_Wtime();
           for (i_sr=0; i_sr<sr_count[i_pat]; i_sr++)
@@ -1411,6 +1425,7 @@ main(int argc, char **argv)
                     "loop=%3d      after  Waitall\n", myrank, MPI_Wtime()-all_beg,i_rep, 
                     i_msg, i_pat, i_loop); fflush(stdout);
 #          endif 
+		   /*
            for (i_sr=0; i_sr<sr_count[i_pat]; i_sr++)
            { if ((sr_rranks[i_pat][i_sr] != MPI_PROC_NULL) &&
                  ( (recvbuf[base_vals[i_sr]]
@@ -1429,6 +1444,7 @@ main(int argc, char **argv)
                   MPI_Abort(MPI_COMM_WORLD,1);
                 }
            } /* endfor i_sr */
+		   //*/
           } /* endfor i_loop */
           time_end = MPI_Wtime();
          } /* endif do_participate[i_pat] == 1 */
