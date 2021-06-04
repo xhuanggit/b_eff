@@ -9,6 +9,10 @@
 /*                                                                    */
 /*  Further information: www.hlrs.de/mpi/b_eff/                       */
 /*                                                                    */
+
+/* Modified for simulation using SimGrid                              */
+/* Author: Xiaolong Huang (2021)                                      */
+
 #define Revision "3.6.0.1"
 /*                                                                    */
 #define Date     "Feb 02, 2016"
