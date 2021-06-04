@@ -11,7 +11,7 @@
 /*                                                                    */
 
 /* Modified for simulation using SimGrid                              */
-/* Author: Xiaolong Huang (2021)                                      */
+/* Author: Xiaolong Huang, 2021                                       */
 
 #define Revision "3.6.0.1"
 /*                                                                    */
