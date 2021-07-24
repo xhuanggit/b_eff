@@ -169,18 +169,18 @@
 #  undef  REPETITIONS
 #  define REPETITIONS 2
 #  undef  TIMEPERLOOP
-#  define TIMEPERLOOP 5e-2
-#  undef  MAX_RANDOM
-#  define MAX_RANDOM 6
+#  define TIMEPERLOOP 5e-5
+//#  undef  MAX_RANDOM
+//#  define MAX_RANDOM 6
 #endif /*SHORT*/
 
 #ifdef TEST
 #  undef  TIMEPERLOOP
-#  define TIMEPERLOOP 5e-3
+#  define TIMEPERLOOP 5e-6
 #  undef  MAX_FOR_LAST_TWO
 #  define MAX_FOR_LAST_TWO 1
 #  undef  MAX_RANDOM
-#  define MAX_RANDOM 2
+#  define MAX_RANDOM 1
 #endif /*TEST*/
  
 #ifdef SHORT
@@ -237,10 +237,11 @@ void logavg_pat( /*IN*/  double b_eff_pat[PATTERNS],
                          double *b_eff_final )
 {
   double help[2];
-  *b_eff_ring   = logavg(b_eff_pat+first_ring_pat,   MAX_RINGS);
+  // skip ring patterns
+  *b_eff_ring   = 0;
   *b_eff_random = logavg(b_eff_pat+first_random_pat, MAX_RANDOM);
   help[0] = *b_eff_ring;  help[1] = *b_eff_random;
-  *b_eff_final     = logavg(help, 2); 
+  *b_eff_final     = *b_eff_random;
 } 
 
 #ifdef _OPENMP
@@ -1237,7 +1238,8 @@ main(int argc, char **argv)
         } 
       } /* endif (minlooplng==0) */
  
-      for (i_pat=0; i_pat<max_patterns; i_pat++)
+      // skip ring patterns
+      for (i_pat=MAX_RINGS; i_pat<max_patterns; i_pat++)
       {
 #      if (PRINTLEVEL >= 3) 
          printf("[%02d]%4.0fs i_rep=%2d i_msg=%2d i_pat=%2d -- next i_pat\n",
@@ -1615,11 +1617,12 @@ main(int argc, char **argv)
     {
       for (i_mthd=0; i_mthd<max_methods; i_mthd++)
       {
-        for (i_pat=0; i_pat<max_patterns; i_pat++)
+        // skip ring patterns
+        for (i_pat=MAX_RINGS; i_pat<max_patterns; i_pat++)
         {
-          if (i_pat==0 && i_mthd==0) fprintf(fp," %10d",msglng[i_msg]);
+          if (i_pat==MAX_RINGS && i_mthd==0) fprintf(fp," %10d",msglng[i_msg]);
                                 else fprintf(fp,"           ");
-          if (i_pat==0) fprintf(fp," mthd%1d",i_mthd);
+          if (i_pat==MAX_RINGS) fprintf(fp," mthd%1d",i_mthd);
                    else fprintf(fp,"      ");
           fprintf(fp," p%02d min=",i_pat);
           rep_sum = 0;
